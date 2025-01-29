@@ -26,6 +26,8 @@ public struct ProvenanceCreatedEvent has copy, drop {
 const EProvenanceHashMismatch: u64 = 0;
 const EProvenanceAlreadyInitialized: u64 = 1;
 
+//=== Init Function ===
+
 fun init(_otw: PROVENANCE, ctx: &mut TxContext) {
     let provenance = Provenance {
         id: object::new(ctx),
@@ -37,6 +39,8 @@ fun init(_otw: PROVENANCE, ctx: &mut TxContext) {
 
     transfer::share_object(provenance);
 }
+
+//=== Public Functions ===
 
 public fun add_hash(
     self: &mut Provenance,
@@ -53,6 +57,8 @@ public fun add_hash(
         self.is_initialized = true;
     };
 }
+
+//=== Package Functions ===
 
 public(package) fun hashes_mut(self: &mut Provenance): &mut Table<u64, String> {
     &mut self.hashes
@@ -99,7 +105,6 @@ public fun id(self: &Provenance): ID {
 
 #[test]
 fun test_calculate_hash() {
-    use std::debug;
     let hash = calculate_hash(
         1,
         vector[

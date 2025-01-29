@@ -9,12 +9,24 @@ public use fun initialize_collection_cap_id as InitializeCollectionCap.id;
 
 public struct COLLECTION has drop {}
 
-const FRAMEWORK: vector<u8> = b"SOF-1";
-const COLLECTION_NAME: vector<u8> = b"TAMASHI";
-const UNIT_NAME: vector<u8> = b"Tamashi";
-const SYMBOL: vector<u8> = b"TAMASHI";
-const DESCRIPTION: vector<u8> = b"Tamashi is a collection of 100 robot-headed individuals.";
-const ATTRIBUTE_KEYS: vector<vector<u8>> = vector[b"background"];
+const FRAMEWORK: vector<u8> = b"DOS-1";
+const COLLECTION_NAME: vector<u8> = b"PRIME MACHIN";
+const UNIT_NAME: vector<u8> = b"Prime Machin";
+const SYMBOL: vector<u8> = b"PRIME";
+const DESCRIPTION: vector<u8> =
+    b"Prime Machin is a collection of 3,333 robots manufactured by the Triangle Company.";
+const ATTRIBUTE_KEYS: vector<vector<u8>> = vector[
+    b"aura",
+    b"background",
+    b"clothing",
+    b"decal",
+    b"headwear",
+    b"highlight",
+    b"internals",
+    b"mask",
+    b"screen",
+    b"skin",
+];
 const SUPPLY: u64 = 100;
 const IS_DESTROYABLE: bool = true;
 
