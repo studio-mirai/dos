@@ -24,3 +24,11 @@ dependencies = [
 compiler-version = "1.40.3"
 edition = "2024.beta"
 flavor = "sui"
+
+[env]
+
+[env.mirainet]
+chain-id = "152b88ec"
+original-published-id = "0x27418932ed17ff04de3a4bb7c9f8c4ddf7105a259ea376b176eefc7df5689093"
+latest-published-id = "0x27418932ed17ff04de3a4bb7c9f8c4ddf7105a259ea376b176eefc7df5689093"
+published-version = "1"

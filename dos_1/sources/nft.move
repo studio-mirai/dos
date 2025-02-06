@@ -1,7 +1,6 @@
 module dos_1::nft;
 
 use dos_1::collection::{Collection, CollectionAdminCap};
-use dos_1::provenance::{Self, Provenance};
 use std::string::String;
 use sui::display;
 use sui::event::emit;
@@ -17,7 +16,7 @@ public struct Nft has key, store {
     id: UID,
     name: String,
     number: u64,
-    image_uri: Option<String>,
+    image_uri: String,
     attributes: VecMap<String, String>,
 }
 
@@ -44,7 +43,9 @@ public struct ObjectReceivedEvent has copy, drop {
 //=== Errors ===
 
 const ECollectionNotDestroyable: u64 = 0;
-const EInvalidAttributeKey: u64 = 1;
+const EImageUriNotEmpty: u64 = 1;
+
+//=== Init Function ===
 
 fun init(otw: NFT, ctx: &mut TxContext) {
     let publisher = package::claim(otw, ctx);
@@ -61,28 +62,7 @@ fun init(otw: NFT, ctx: &mut TxContext) {
     transfer::public_transfer(publisher, ctx.sender());
 }
 
-public(package) fun new(number: u64, collection: &mut Collection, ctx: &mut TxContext): Nft {
-    let mut name = collection.unit_name();
-    name.append(b" #".to_string());
-    name.append(number.to_string());
-
-    let nft = Nft {
-        id: object::new(ctx),
-        name: name,
-        number: number,
-        image_uri: option::none(),
-        attributes: vec_map::empty(),
-    };
-
-    emit(NftCreatedEvent {
-        nft_id: object::id(&nft),
-        nft_number: number,
-    });
-
-    collection.nfts_mut().push_back(number, nft.id());
-
-    nft
-}
+//=== Public Functions ===
 
 // Destroy an NFT. Only works if the collection.is_destroyable is true.
 public fun destroy(self: Nft, collection: &mut Collection) {
@@ -96,13 +76,11 @@ public fun destroy(self: Nft, collection: &mut Collection) {
 
     let Nft {
         id,
-        image_uri,
         attributes,
         ..,
     } = self;
 
     id.delete();
-    image_uri.destroy_some();
     attributes.into_keys_values();
 }
 
@@ -121,28 +99,18 @@ public fun receive<T: key + store>(nft: &mut Nft, obj_to_receive: Receiving<T>):
     obj
 }
 
-// Reveal the NFT with attributes and an image URI.
+// Reveal the NFT with attributes keys, attribute values, and an image URI.
 public fun reveal(
     self: &mut Nft,
     _: &CollectionAdminCap,
     mut attribute_keys: vector<String>,
     mut attribute_values: vector<String>,
     image_uri: String,
-    provenance: &mut Provenance,
-    collection: &Collection,
 ) {
-    let calculated_provenance_hash = provenance::calculate_hash(
-        self.number,
-        attribute_keys,
-        attribute_values,
-        image_uri,
-    );
-
-    provenance.verify_hash(self.number, calculated_provenance_hash);
+    assert!(self.image_uri == b"".to_string(), EImageUriNotEmpty);
 
     while (!attribute_keys.is_empty()) {
         let key = attribute_keys.pop_back();
-        assert!(collection.attribute_keys().contains(&key), EInvalidAttributeKey);
         self.attributes.insert(key, attribute_values.pop_back());
     };
 
@@ -150,18 +118,49 @@ public fun reveal(
         nft_id: object::id(self),
     });
 
-    self.image_uri.fill(image_uri);
+    self.image_uri = image_uri;
 }
+
+//=== Package Functions ===
+
+public(package) fun new(number: u64, collection: &mut Collection, ctx: &mut TxContext): Nft {
+    let mut name = collection.unit_name();
+    name.append(b" #".to_string());
+    name.append(number.to_string());
+
+    let nft = Nft {
+        id: object::new(ctx),
+        name: name,
+        number: number,
+        image_uri: b"".to_string(),
+        attributes: vec_map::empty(),
+    };
+
+    emit(NftCreatedEvent {
+        nft_id: object::id(&nft),
+        nft_number: number,
+    });
+
+    collection.nfts_mut().push_back(number, nft.id());
+
+    nft
+}
+
+//=== View Functions ===
 
 public fun id(self: &Nft): ID {
     object::id(self)
+}
+
+public fun name(self: &Nft): String {
+    self.name
 }
 
 public fun number(self: &Nft): u64 {
     self.number
 }
 
-public fun image_uri(self: &Nft): Option<String> {
+public fun image_uri(self: &Nft): String {
     self.image_uri
 }
 

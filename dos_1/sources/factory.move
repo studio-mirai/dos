@@ -2,10 +2,11 @@ module dos_1::factory;
 
 use dos_1::collection::{Collection, CollectionAdminCap};
 use dos_1::nft::{Self, Nft};
-use dos_1::provenance::Provenance;
 use std::u64;
 use sui::event::emit;
 use sui::table_vec::{Self, TableVec};
+
+//=== Structs ===
 
 public struct FACTORY has drop {}
 
@@ -19,9 +20,12 @@ public struct FactoryCreatedEvent has copy, drop {
     factory_id: ID,
 }
 
+//=== Errors ===
+
 const EFactoryAlreadyInitialized: u64 = 0;
 const EFactoryNotInitialized: u64 = 1;
-const EProvenanceNotInitialized: u64 = 2;
+
+//=== Init Function ===
 
 fun init(_otw: FACTORY, ctx: &mut TxContext) {
     let factory = Factory {
@@ -35,17 +39,15 @@ fun init(_otw: FACTORY, ctx: &mut TxContext) {
     transfer::share_object(factory);
 }
 
+//=== Public Functions ===
+
 public fun create_nfts(
     self: &mut Factory,
     _: &CollectionAdminCap,
     mut quantity: u64,
     collection: &mut Collection,
-    provenance: &Provenance,
     ctx: &mut TxContext,
 ) {
-    // Assert the provenance hashes have been created before NFTs can be created.
-    assert!(provenance.is_initialized() == true, EProvenanceNotInitialized);
-
     assert!(self.is_initialized == false, EFactoryAlreadyInitialized);
 
     quantity = u64::min(quantity, collection.supply() - self.nfts.length());
@@ -79,6 +81,16 @@ public fun remove_nfts(self: &mut Factory, _: &CollectionAdminCap, mut quantity:
     nfts
 }
 
+//=== View Functions ===
+
 public fun id(self: &Factory): ID {
     object::id(self)
+}
+
+public fun is_initialized(self: &Factory): bool {
+    self.is_initialized
+}
+
+public fun nfts(self: &Factory): &TableVec<Nft> {
+    &self.nfts
 }

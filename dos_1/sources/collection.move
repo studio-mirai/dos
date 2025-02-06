@@ -3,32 +3,26 @@ module dos_1::collection;
 use std::string::String;
 use sui::event::emit;
 use sui::linked_table::{Self, LinkedTable};
-use sui::vec_set::{Self, VecSet};
+
+//=== Method Aliases ===
 
 public use fun initialize_collection_cap_id as InitializeCollectionCap.id;
 
+//=== Structs ===
+
 public struct COLLECTION has drop {}
 
+//=== Constants ===
+
 const FRAMEWORK: vector<u8> = b"DOS-1";
-const COLLECTION_NAME: vector<u8> = b"PRIME MACHIN";
-const UNIT_NAME: vector<u8> = b"Prime Machin";
-const SYMBOL: vector<u8> = b"PRIME";
-const DESCRIPTION: vector<u8> =
-    b"Prime Machin is a collection of 3,333 robots manufactured by the Triangle Company.";
-const ATTRIBUTE_KEYS: vector<vector<u8>> = vector[
-    b"aura",
-    b"background",
-    b"clothing",
-    b"decal",
-    b"headwear",
-    b"highlight",
-    b"internals",
-    b"mask",
-    b"screen",
-    b"skin",
-];
-const SUPPLY: u64 = 100;
-const IS_DESTROYABLE: bool = true;
+const COLLECTION_NAME: vector<u8> = b"<COLLECTION_NAME>";
+const UNIT_NAME: vector<u8> = b"<UNIT_NAME>";
+const SYMBOL: vector<u8> = b"<SYMBOL>";
+const DESCRIPTION: vector<u8> = b"<DESCRIPTION>";
+const SUPPLY: u64 = 0;
+const IS_DESTROYABLE: bool = false;
+
+//=== Structs ===
 
 public struct Collection has key {
     id: UID,
@@ -42,8 +36,6 @@ public struct Collection has key {
     symbol: String,
     // The description of the collection.
     description: String,
-    // The valid attribute keys for the collection.
-    attribute_keys: VecSet<String>,
     // The supply of the collection.
     supply: u64,
     // Whether NFTs in this collection should be destroyable.
@@ -66,6 +58,8 @@ public struct CollectionInitializeEvent has copy, drop {
     creator: address,
 }
 
+//=== Init Function ===
+
 fun init(_otw: COLLECTION, ctx: &mut TxContext) {
     let collection = Collection {
         id: object::new(ctx),
@@ -74,7 +68,6 @@ fun init(_otw: COLLECTION, ctx: &mut TxContext) {
         unit_name: UNIT_NAME.to_string(),
         symbol: SYMBOL.to_string(),
         description: DESCRIPTION.to_string(),
-        attribute_keys: vec_set::from_keys(ATTRIBUTE_KEYS.map!(|v| v.to_string())),
         supply: SUPPLY,
         is_destroyable: IS_DESTROYABLE,
         nfts: linked_table::new(ctx),
@@ -95,24 +88,26 @@ fun init(_otw: COLLECTION, ctx: &mut TxContext) {
     transfer::transfer(collection_admin_cap, ctx.sender());
 }
 
+//=== View Functions ===
+
 public fun id(self: &Collection): ID {
     self.id.to_inner()
 }
 
-public fun attribute_keys(self: &Collection): &VecSet<String> {
-    &self.attribute_keys
+public fun collection_name(self: &Collection): String {
+    self.collection_name
 }
 
 public fun description(self: &Collection): String {
     self.description
 }
 
-public fun is_destroyable(self: &Collection): bool {
-    self.is_destroyable
+public fun framework(self: &Collection): String {
+    self.framework
 }
 
-public fun collection_name(self: &Collection): String {
-    self.collection_name
+public fun is_destroyable(self: &Collection): bool {
+    self.is_destroyable
 }
 
 public fun supply(self: &Collection): u64 {
