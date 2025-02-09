@@ -16,6 +16,7 @@ public struct Nft has key, store {
     id: UID,
     name: String,
     number: u64,
+    description: String,
     image_uri: String,
     attributes: VecMap<String, String>,
 }
@@ -50,12 +51,12 @@ const EImageUriNotEmpty: u64 = 1;
 fun init(otw: NFT, ctx: &mut TxContext) {
     let publisher = package::claim(otw, ctx);
 
-    // Create a display object for the Nft type.
     let mut display = display::new<Nft>(&publisher, ctx);
     display.add(b"name".to_string(), b"{name}".to_string());
     display.add(b"number".to_string(), b"{number}".to_string());
-    display.add(b"image_uri".to_string(), b"{image_uri}".to_string());
+    display.add(b"image_url".to_string(), b"{image_url}".to_string());
     display.add(b"attributes".to_string(), b"{attributes}".to_string());
+    display.add(b"description".to_string(), b"{description}".to_string());
     display.update_version();
 
     transfer::public_transfer(display, ctx.sender());
@@ -132,6 +133,7 @@ public(package) fun new(number: u64, collection: &mut Collection, ctx: &mut TxCo
         id: object::new(ctx),
         name: name,
         number: number,
+        description: collection.unit_description(),
         image_uri: b"".to_string(),
         attributes: vec_map::empty(),
     };

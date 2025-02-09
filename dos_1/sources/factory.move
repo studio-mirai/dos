@@ -24,6 +24,7 @@ public struct FactoryCreatedEvent has copy, drop {
 
 const EFactoryAlreadyInitialized: u64 = 0;
 const EFactoryNotInitialized: u64 = 1;
+const EFactoryNotEmpty: u64 = 2;
 
 //=== Init Function ===
 
@@ -40,6 +41,16 @@ fun init(_otw: FACTORY, ctx: &mut TxContext) {
 }
 
 //=== Public Functions ===
+
+public fun destroy(self: Factory, _: &CollectionAdminCap) {
+    assert!(self.is_initialized == true, EFactoryNotInitialized);
+    assert!(self.nfts.length() == 0, EFactoryNotEmpty);
+
+    let Factory { id, nfts, .. } = self;
+
+    id.delete();
+    nfts.destroy_empty();
+}
 
 public fun create_nfts(
     self: &mut Factory,
