@@ -20,12 +20,12 @@ public struct CollectionLink<phantom T> has copy, drop, store {}
 
 const FRAMEWORK: vector<u8> = b"DOS-1";
 const CREATOR: address = @0x1;
-const NAME: vector<u8> = b"name";
-const DESCRIPTION: vector<u8> = b"description";
-const UNIT_NAME: vector<u8> = b"unit_name";
-const UNIT_DESCRIPTION: vector<u8> = b"unit_description";
+const NAME: vector<u8> = b"Prime Machin";
+const DESCRIPTION: vector<u8> = b"Prime Machin is a collection of 3,333 robots.";
+const UNIT_NAME: vector<u8> = b"Prime Machin";
+const UNIT_DESCRIPTION: vector<u8> = b"A robot manufactured by the Triangle Company.";
 const SUPPLY: u64 = 3333;
-const SYMBOL: vector<u8> = b"symbol";
+const SYMBOL: vector<u8> = b"PRIME_MACHIN";
 const IS_DESTROYABLE: bool = false;
 
 //=== Structs ===
