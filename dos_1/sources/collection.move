@@ -19,7 +19,6 @@ public struct CollectionLink<phantom T> has copy, drop, store {}
 //=== Constants ===
 
 const FRAMEWORK: vector<u8> = b"DOS-1";
-const CREATOR: address = @0x1;
 const NAME: vector<u8> = b"Prime Machin";
 const DESCRIPTION: vector<u8> = b"Prime Machin is a collection of 3,333 robots.";
 const UNIT_NAME: vector<u8> = b"Prime Machin";
@@ -93,7 +92,7 @@ fun init(otw: COLLECTION, ctx: &mut TxContext) {
     emit(CollectionInitializedEvent {
         collection_id: object::id(&collection),
         collection_name: collection.name(),
-        creator: CREATOR,
+        creator: @creator,
     });
 
     let publisher = package::claim(otw, ctx);

@@ -29,6 +29,6 @@ flavor = "sui"
 
 [env.mirainet]
 chain-id = "794e423b"
-original-published-id = "0x30b9acb94be4e37636e4451a27d3c95ad7e7c463b64745213052d74495380c69"
-latest-published-id = "0x30b9acb94be4e37636e4451a27d3c95ad7e7c463b64745213052d74495380c69"
+original-published-id = "0xcd88deeb1dc458593cff90a57138d606d6b1d5e2eaea3868965cc3c48b2ef8d8"
+latest-published-id = "0xcd88deeb1dc458593cff90a57138d606d6b1d5e2eaea3868965cc3c48b2ef8d8"
 published-version = "1"
