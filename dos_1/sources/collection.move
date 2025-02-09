@@ -14,9 +14,19 @@ public use fun initialize_collection_cap_id as InitializeCollectionCap.id;
 
 public struct COLLECTION has drop {}
 
+public struct CollectionLink<phantom T> has copy, drop, store {}
+
 //=== Constants ===
 
 const FRAMEWORK: vector<u8> = b"DOS-1";
+const CREATOR: address = @0x1;
+const NAME: vector<u8> = b"name";
+const DESCRIPTION: vector<u8> = b"description";
+const UNIT_NAME: vector<u8> = b"unit_name";
+const UNIT_DESCRIPTION: vector<u8> = b"unit_description";
+const SUPPLY: u64 = 3333;
+const SYMBOL: vector<u8> = b"symbol";
+const IS_DESTROYABLE: bool = false;
 
 //=== Structs ===
 
@@ -44,13 +54,15 @@ public struct Collection has key {
 
 public struct CollectionAdminCap has key, store {
     id: UID,
+    collection_id: ID,
+    framework: String,
 }
 
 public struct InitializeCollectionCap has key, store {
     id: UID,
 }
 
-public struct CollectionInitializeEvent has copy, drop {
+public struct CollectionInitializedEvent has copy, drop {
     collection_id: ID,
     collection_name: String,
     creator: address,
@@ -59,6 +71,31 @@ public struct CollectionInitializeEvent has copy, drop {
 //=== Init Function ===
 
 fun init(otw: COLLECTION, ctx: &mut TxContext) {
+    let collection = Collection {
+        id: object::new(ctx),
+        framework: FRAMEWORK.to_string(),
+        name: NAME.to_string(),
+        description: DESCRIPTION.to_string(),
+        unit_name: UNIT_NAME.to_string(),
+        unit_description: UNIT_DESCRIPTION.to_string(),
+        symbol: SYMBOL.to_string(),
+        supply: SUPPLY,
+        is_destroyable: IS_DESTROYABLE,
+        nfts: linked_table::new(ctx),
+    };
+
+    let admin_cap = CollectionAdminCap {
+        id: object::new(ctx),
+        collection_id: object::id(&collection),
+        framework: collection.framework(),
+    };
+
+    emit(CollectionInitializedEvent {
+        collection_id: object::id(&collection),
+        collection_name: collection.name(),
+        creator: CREATOR,
+    });
+
     let publisher = package::claim(otw, ctx);
 
     let mut display = display::new<Collection>(&publisher, ctx);
@@ -67,11 +104,16 @@ fun init(otw: COLLECTION, ctx: &mut TxContext) {
     display.add(b"description".to_string(), b"{description}".to_string());
     display.add(b"unit_name".to_string(), b"{unit_name}".to_string());
     display.add(b"unit_description".to_string(), b"{unit_description}".to_string());
+    display.add(b"supply".to_string(), b"{supply}".to_string());
     display.add(b"symbol".to_string(), b"{symbol}".to_string());
+    display.add(b"is_destroyable".to_string(), b"{is_destroyable}".to_string());
     display.update_version();
 
     transfer::public_transfer(display, ctx.sender());
     transfer::public_transfer(publisher, ctx.sender());
+    transfer::public_transfer(admin_cap, ctx.sender());
+
+    transfer::share_object(collection);
 }
 
 public fun initialize(
@@ -101,9 +143,11 @@ public fun initialize(
 
     let admin_cap = CollectionAdminCap {
         id: object::new(ctx),
+        collection_id: object::id(&collection),
+        framework: collection.framework(),
     };
 
-    emit(CollectionInitializeEvent {
+    emit(CollectionInitializedEvent {
         collection_id: object::id(&collection),
         collection_name: name,
         creator: creator_addr,

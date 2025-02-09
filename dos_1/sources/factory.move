@@ -92,6 +92,22 @@ public fun remove_nfts(self: &mut Factory, _: &CollectionAdminCap, mut quantity:
     nfts
 }
 
+// Remove and transfer NFTs in a single function.
+// This is useful for transferring NFTs directly to a Launch.
+public fun remove_and_transfer_nfts(
+    self: &mut Factory,
+    _: &CollectionAdminCap,
+    quantity: u64,
+    recipient: address,
+) {
+    let mut i = 0;
+    while (i < quantity) {
+        let nft = self.nfts.pop_back();
+        transfer::public_transfer(nft, recipient);
+        i = i + 1;
+    };
+}
+
 //=== View Functions ===
 
 public fun id(self: &Factory): ID {

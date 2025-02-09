@@ -19,6 +19,8 @@ public struct Nft has key, store {
     description: String,
     image_uri: String,
     attributes: VecMap<String, String>,
+    collection_id: ID,
+    collection_name: String,
 }
 
 //=== Events ===
@@ -54,9 +56,11 @@ fun init(otw: NFT, ctx: &mut TxContext) {
     let mut display = display::new<Nft>(&publisher, ctx);
     display.add(b"name".to_string(), b"{name}".to_string());
     display.add(b"number".to_string(), b"{number}".to_string());
-    display.add(b"image_url".to_string(), b"{image_url}".to_string());
-    display.add(b"attributes".to_string(), b"{attributes}".to_string());
     display.add(b"description".to_string(), b"{description}".to_string());
+    display.add(b"image_uri".to_string(), b"{image_uri}".to_string());
+    display.add(b"attributes".to_string(), b"{attributes}".to_string());
+    display.add(b"collection_id".to_string(), b"{collection_id}".to_string());
+    display.add(b"collection_name".to_string(), b"{collection_name}".to_string());
     display.update_version();
 
     transfer::public_transfer(display, ctx.sender());
@@ -136,6 +140,8 @@ public(package) fun new(number: u64, collection: &mut Collection, ctx: &mut TxCo
         description: collection.unit_description(),
         image_uri: b"".to_string(),
         attributes: vec_map::empty(),
+        collection_id: collection.id(),
+        collection_name: collection.name(),
     };
 
     emit(NftCreatedEvent {
@@ -154,12 +160,20 @@ public fun id(self: &Nft): ID {
     object::id(self)
 }
 
+public fun collection_id(self: &Nft): ID {
+    self.collection_id
+}
+
 public fun name(self: &Nft): String {
     self.name
 }
 
 public fun number(self: &Nft): u64 {
     self.number
+}
+
+public fun description(self: &Nft): String {
+    self.description
 }
 
 public fun image_uri(self: &Nft): String {

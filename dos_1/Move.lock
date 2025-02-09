@@ -21,14 +21,14 @@ dependencies = [
 ]
 
 [move.toolchain-version]
-compiler-version = "1.40.3"
+compiler-version = "1.41.1"
 edition = "2024.beta"
 flavor = "sui"
 
 [env]
 
 [env.mirainet]
-chain-id = "152b88ec"
-original-published-id = "0x27418932ed17ff04de3a4bb7c9f8c4ddf7105a259ea376b176eefc7df5689093"
-latest-published-id = "0x27418932ed17ff04de3a4bb7c9f8c4ddf7105a259ea376b176eefc7df5689093"
+chain-id = "794e423b"
+original-published-id = "0x30b9acb94be4e37636e4451a27d3c95ad7e7c463b64745213052d74495380c69"
+latest-published-id = "0x30b9acb94be4e37636e4451a27d3c95ad7e7c463b64745213052d74495380c69"
 published-version = "1"
