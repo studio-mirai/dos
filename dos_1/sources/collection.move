@@ -13,13 +13,14 @@ public struct COLLECTION has drop {}
 //=== Constants ===
 
 const FRAMEWORK: vector<u8> = b"DOS-1";
-const NAME: vector<u8> = b"Prime Machin";
-const DESCRIPTION: vector<u8> = b"Prime Machin is a collection of 3,333 robots.";
-const UNIT_NAME: vector<u8> = b"Prime Machin";
-const UNIT_DESCRIPTION: vector<u8> = b"A robot manufactured by the Triangle Company.";
-const SUPPLY: u64 = 3333;
-const SYMBOL: vector<u8> = b"PRIME_MACHIN";
-const IS_DESTROYABLE: bool = false;
+const NAME: vector<u8> = b"<NAME>";
+const DESCRIPTION: vector<u8> = b"<DESCRIPTION>";
+const IMAGE_URI: vector<u8> = b"<IMAGE_URI>";
+const UNIT_NAME: vector<u8> = b"<UNIT_NAME>";
+const UNIT_DESCRIPTION: vector<u8> = b"<UNIT_DESCRIPTION>";
+const SUPPLY: u64 = 0;
+const SYMBOL: vector<u8> = b"<SYMBOL>";
+const IS_DESTROYABLE: bool = true;
 
 //=== Structs ===
 
@@ -33,6 +34,8 @@ public struct Collection has key {
     name: String,
     // The description of the collection.
     description: String,
+    // The image uri of the collection.
+    image_uri: String,
     // The name for a unit of the collection (e.g. "Enforcer Machin" if the collection name is "ENFORCER MACHIN").
     unit_name: String,
     // The symbol of the collection, should be all caps (e.g. TAMASHI).
@@ -68,6 +71,7 @@ fun init(otw: COLLECTION, ctx: &mut TxContext) {
         creator: @creator,
         name: NAME.to_string(),
         description: DESCRIPTION.to_string(),
+        image_uri: IMAGE_URI.to_string(),
         unit_name: UNIT_NAME.to_string(),
         unit_description: UNIT_DESCRIPTION.to_string(),
         symbol: SYMBOL.to_string(),
@@ -94,6 +98,7 @@ fun init(otw: COLLECTION, ctx: &mut TxContext) {
     display.add(b"framework".to_string(), b"{framework}".to_string());
     display.add(b"name".to_string(), b"{name}".to_string());
     display.add(b"description".to_string(), b"{description}".to_string());
+    display.add(b"image_uri".to_string(), b"{image_uri}".to_string());
     display.add(b"unit_name".to_string(), b"{unit_name}".to_string());
     display.add(b"unit_description".to_string(), b"{unit_description}".to_string());
     display.add(b"supply".to_string(), b"{supply}".to_string());
