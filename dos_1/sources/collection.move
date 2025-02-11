@@ -33,6 +33,8 @@ public struct Collection has key {
     id: UID,
     // The framework name of the collection.
     framework: String,
+    // The creator of the collection.
+    creator: address,
     // The name of the collection.
     name: String,
     // The description of the collection.
@@ -73,6 +75,7 @@ fun init(otw: COLLECTION, ctx: &mut TxContext) {
     let collection = Collection {
         id: object::new(ctx),
         framework: FRAMEWORK.to_string(),
+        creator: @creator,
         name: NAME.to_string(),
         description: DESCRIPTION.to_string(),
         unit_name: UNIT_NAME.to_string(),
@@ -113,51 +116,6 @@ fun init(otw: COLLECTION, ctx: &mut TxContext) {
     transfer::public_transfer(admin_cap, ctx.sender());
 
     transfer::share_object(collection);
-}
-
-public fun initialize(
-    cap: InitializeCollectionCap,
-    creator_addr: address,
-    name: String,
-    description: String,
-    unit_name: String,
-    unit_description: String,
-    symbol: String,
-    supply: u64,
-    is_destroyable: bool,
-    ctx: &mut TxContext,
-): CollectionAdminCap {
-    let collection = Collection {
-        id: object::new(ctx),
-        framework: FRAMEWORK.to_string(),
-        name: name,
-        description: description,
-        unit_name: unit_name,
-        unit_description: unit_description,
-        symbol: symbol,
-        supply: supply,
-        is_destroyable: is_destroyable,
-        nfts: linked_table::new(ctx),
-    };
-
-    let admin_cap = CollectionAdminCap {
-        id: object::new(ctx),
-        collection_id: object::id(&collection),
-        framework: collection.framework(),
-    };
-
-    emit(CollectionInitializedEvent {
-        collection_id: object::id(&collection),
-        collection_name: name,
-        creator: creator_addr,
-    });
-
-    let InitializeCollectionCap { id, .. } = cap;
-    id.delete();
-
-    transfer::share_object(collection);
-
-    admin_cap
 }
 
 //=== View Functions ===

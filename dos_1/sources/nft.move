@@ -1,6 +1,6 @@
 module dos_1::nft;
 
-use dos_1::collection::{Collection, CollectionAdminCap};
+use dos_1::collection::Collection;
 use std::string::String;
 use sui::display;
 use sui::event::emit;
@@ -107,23 +107,21 @@ public fun receive<T: key + store>(nft: &mut Nft, obj_to_receive: Receiving<T>):
 // Reveal the NFT with attributes keys, attribute values, and an image URI.
 public fun reveal(
     self: &mut Nft,
-    _: &CollectionAdminCap,
-    mut attribute_keys: vector<String>,
-    mut attribute_values: vector<String>,
+    attribute_keys: vector<String>,
+    attribute_values: vector<String>,
     image_uri: String,
+    salt: String,
 ) {
     assert!(self.image_uri == b"".to_string(), EImageUriNotEmpty);
 
-    while (!attribute_keys.is_empty()) {
-        let key = attribute_keys.pop_back();
-        self.attributes.insert(key, attribute_values.pop_back());
-    };
+    let attributes = vec_map::from_keys_values(attribute_keys, attribute_values);
+
+    self.attributes = attributes;
+    self.image_uri = image_uri;
 
     emit(NftRevealedEvent {
         nft_id: object::id(self),
     });
-
-    self.image_uri = image_uri;
 }
 
 //=== Package Functions ===

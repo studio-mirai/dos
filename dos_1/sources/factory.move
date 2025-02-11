@@ -25,6 +25,7 @@ public struct FactoryCreatedEvent has copy, drop {
 const EFactoryAlreadyInitialized: u64 = 0;
 const EFactoryNotInitialized: u64 = 1;
 const EFactoryNotEmpty: u64 = 2;
+const EProvenanceNotInitialized: u64 = 3;
 
 //=== Init Function ===
 

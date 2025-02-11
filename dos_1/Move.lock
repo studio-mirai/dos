@@ -2,7 +2,7 @@
 
 [move]
 version = 3
-manifest_digest = "FC7DB475E008A421795FF0D12F9F6F3AE35148AFAE430C56EE1D4E84AA0C5BE0"
+manifest_digest = "F234F40091D71B6FB787FB3D56B32102598F83B885FABFECE1DFDF8CD644BC9A"
 deps_digest = "F8BBB0CCB2491CA29A3DF03D6F92277A4F3574266507ACD77214D37ECA3F3082"
 dependencies = [
   { id = "Sui", name = "Sui" },
@@ -29,6 +29,6 @@ flavor = "sui"
 
 [env.mirainet]
 chain-id = "794e423b"
-original-published-id = "0xcd88deeb1dc458593cff90a57138d606d6b1d5e2eaea3868965cc3c48b2ef8d8"
-latest-published-id = "0xcd88deeb1dc458593cff90a57138d606d6b1d5e2eaea3868965cc3c48b2ef8d8"
+original-published-id = "0x6421c7040121f5818cc097b2b4e6f160ccdd347dbf89aca8bfd3117400ed97a4"
+latest-published-id = "0x6421c7040121f5818cc097b2b4e6f160ccdd347dbf89aca8bfd3117400ed97a4"
 published-version = "1"

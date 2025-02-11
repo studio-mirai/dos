@@ -10,7 +10,6 @@ First, update `collection.move` with information about your collection.
 
 ```
 const FRAMEWORK: vector<u8> = b"DOS-1";
-const CREATOR: address = @0x1;
 const NAME: vector<u8> = b"Prime Machin";
 const DESCRIPTION: vector<u8> = b"Prime Machin is a collection of 3,333 robots.";
 const UNIT_NAME: vector<u8> = b"Prime Machin";
