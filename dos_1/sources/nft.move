@@ -63,8 +63,8 @@ fun init(otw: NFT, ctx: &mut TxContext) {
     display.add(b"collection_name".to_string(), b"{collection_name}".to_string());
     display.update_version();
 
-    transfer::public_transfer(display, ctx.sender());
-    transfer::public_transfer(publisher, ctx.sender());
+    transfer::public_transfer(display, @deployer);
+    transfer::public_transfer(publisher, @deployer);
 }
 
 //=== Public Functions ===
@@ -110,7 +110,6 @@ public fun reveal(
     attribute_keys: vector<String>,
     attribute_values: vector<String>,
     image_uri: String,
-    salt: String,
 ) {
     assert!(self.image_uri == b"".to_string(), EImageUriNotEmpty);
 

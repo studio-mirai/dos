@@ -6,15 +6,9 @@ use sui::event::emit;
 use sui::linked_table::{Self, LinkedTable};
 use sui::package;
 
-//=== Method Aliases ===
-
-public use fun initialize_collection_cap_id as InitializeCollectionCap.id;
-
 //=== Structs ===
 
 public struct COLLECTION has drop {}
-
-public struct CollectionLink<phantom T> has copy, drop, store {}
 
 //=== Constants ===
 
@@ -57,10 +51,6 @@ public struct CollectionAdminCap has key, store {
     id: UID,
     collection_id: ID,
     framework: String,
-}
-
-public struct InitializeCollectionCap has key, store {
-    id: UID,
 }
 
 public struct CollectionInitializedEvent has copy, drop {
@@ -154,10 +144,6 @@ public fun supply(self: &Collection): u64 {
 
 public fun symbol(self: &Collection): String {
     self.symbol
-}
-
-public fun initialize_collection_cap_id(self: &InitializeCollectionCap): ID {
-    object::id(self)
 }
 
 //=== Package Functions ===
