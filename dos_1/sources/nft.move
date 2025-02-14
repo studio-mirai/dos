@@ -2,6 +2,7 @@ module dos_1::nft;
 
 use dos_1::collection::Collection;
 use std::string::String;
+use std::type_name;
 use sui::display;
 use sui::event::emit;
 use sui::package;
@@ -32,6 +33,13 @@ public struct NftCreatedEvent has copy, drop {
 
 public struct NftDestroyedEvent has copy, drop {
     nft_id: ID,
+    collection_id: ID,
+}
+
+public struct ObjectTypeInitializedEvent has copy, drop {
+    object_type: String,
+    object_display_id: ID,
+    object_publisher_id: ID,
 }
 
 public struct NftRevealedEvent has copy, drop {
@@ -45,8 +53,7 @@ public struct ObjectReceivedEvent has copy, drop {
 
 //=== Errors ===
 
-const ECollectionNotDestroyable: u64 = 0;
-const EImageUriNotEmpty: u64 = 1;
+const EImageUriNotEmpty: u64 = 0;
 
 //=== Init Function ===
 
@@ -63,6 +70,12 @@ fun init(otw: NFT, ctx: &mut TxContext) {
     display.add(b"collection_name".to_string(), b"{collection_name}".to_string());
     display.update_version();
 
+    emit(ObjectTypeInitializedEvent {
+        object_type: type_name::get<Nft>().into_string().to_string(),
+        object_display_id: object::id(&display),
+        object_publisher_id: object::id(&publisher),
+    });
+
     transfer::public_transfer(display, @deployer);
     transfer::public_transfer(publisher, @deployer);
 }
@@ -71,13 +84,12 @@ fun init(otw: NFT, ctx: &mut TxContext) {
 
 // Destroy an NFT. Only works if the collection.is_destroyable is true.
 public fun destroy(self: Nft, collection: &mut Collection) {
-    assert!(collection.is_destroyable() == true, ECollectionNotDestroyable);
+    collection.nfts_mut().remove(self.number());
 
     emit(NftDestroyedEvent {
         nft_id: object::id(&self),
+        collection_id: collection.id(),
     });
-
-    collection.nfts_mut().remove(self.number());
 
     let Nft {
         id,

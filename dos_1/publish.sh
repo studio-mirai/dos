@@ -33,7 +33,11 @@ perl -pi -e "s/^const IS_DESTROYABLE: bool = (true|false);/const IS_DESTROYABLE:
 perl -pi -e "s|^creator = \".*\"|creator = \"${CREATOR_ADDRESS}\"|" Move.toml
 perl -pi -e "s|^deployer = \".*\"|deployer = \"${DEPLOYER_ADDRESS}\"|" Move.toml
 
-RESULT=$(sui client publish --json --skip-dependency-verification)
+sui client ptb \
+  --publish "." \
+  --gas-budget 100000000
+
+#RESULT=$(sui client publish --json --skip-dependency-verification)
 
 echo "Resetting constants back to default values..."
 perl -pi -e 's|const NAME: vector<u8> = b".*"|const NAME: vector<u8> = b"<NAME>"|' sources/collection.move
@@ -45,4 +49,6 @@ perl -pi -e 's|const SUPPLY: u64 = \d+;|const SUPPLY: u64 = 0;|' sources/collect
 perl -pi -e 's|const SYMBOL: vector<u8> = b".*"|const SYMBOL: vector<u8> = b"<SYMBOL>"|' sources/collection.move
 perl -pi -e 's/^const IS_DESTROYABLE: bool = (true|false);/const IS_DESTROYABLE: bool = true;/' sources/collection.move
 
-echo "$RESULT" | jq '(.objectChanges[] | select(.type=="published") | .packageId)'
+#echo "$RESULT" | jq '(.objectChanges[] | select(.type=="published") | .packageId)'
+
+#echo "$RESULT" | jq -r .objectChanges

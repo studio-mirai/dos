@@ -20,7 +20,6 @@ const UNIT_NAME: vector<u8> = b"<UNIT_NAME>";
 const UNIT_DESCRIPTION: vector<u8> = b"<UNIT_DESCRIPTION>";
 const SUPPLY: u64 = 0;
 const SYMBOL: vector<u8> = b"<SYMBOL>";
-const IS_DESTROYABLE: bool = true;
 
 //=== Structs ===
 
@@ -44,8 +43,6 @@ public struct Collection has key {
     supply: u64,
     // Symbol of the collection.
     symbol: String,
-    // Whether NFTs in this collection should be destroyable.
-    is_destroyable: bool,
     // Table that stores NFT IDs by number.
     nfts: LinkedTable<u64, ID>,
 }
@@ -59,7 +56,11 @@ public struct CollectionAdminCap has key, store {
 public struct CollectionInitializedEvent has copy, drop {
     collection_id: ID,
     collection_name: String,
+    collection_admin_cap_id: ID,
+    collection_display_id: ID,
+    collection_publisher_id: ID,
     creator: address,
+    deployer: address,
 }
 
 //=== Init Function ===
@@ -76,7 +77,6 @@ fun init(otw: COLLECTION, ctx: &mut TxContext) {
         unit_description: UNIT_DESCRIPTION.to_string(),
         symbol: SYMBOL.to_string(),
         supply: SUPPLY,
-        is_destroyable: IS_DESTROYABLE,
         nfts: linked_table::new(ctx),
     };
 
@@ -86,29 +86,31 @@ fun init(otw: COLLECTION, ctx: &mut TxContext) {
         framework: collection.framework(),
     };
 
-    emit(CollectionInitializedEvent {
-        collection_id: object::id(&collection),
-        collection_name: collection.name(),
-        creator: @creator,
-    });
-
     let publisher = package::claim(otw, ctx);
 
     let mut display = display::new<Collection>(&publisher, ctx);
     display.add(b"framework".to_string(), b"{framework}".to_string());
+    display.add(b"creator".to_string(), b"{creator}".to_string());
     display.add(b"name".to_string(), b"{name}".to_string());
     display.add(b"description".to_string(), b"{description}".to_string());
     display.add(b"image_uri".to_string(), b"{image_uri}".to_string());
-    display.add(b"unit_name".to_string(), b"{unit_name}".to_string());
-    display.add(b"unit_description".to_string(), b"{unit_description}".to_string());
     display.add(b"supply".to_string(), b"{supply}".to_string());
     display.add(b"symbol".to_string(), b"{symbol}".to_string());
-    display.add(b"is_destroyable".to_string(), b"{is_destroyable}".to_string());
     display.update_version();
 
-    transfer::public_transfer(display, ctx.sender());
-    transfer::public_transfer(publisher, ctx.sender());
-    transfer::public_transfer(admin_cap, ctx.sender());
+    emit(CollectionInitializedEvent {
+        collection_id: object::id(&collection),
+        collection_name: collection.name(),
+        collection_admin_cap_id: object::id(&admin_cap),
+        collection_display_id: object::id(&display),
+        collection_publisher_id: object::id(&publisher),
+        creator: @creator,
+        deployer: @deployer,
+    });
+
+    transfer::public_transfer(display, @deployer);
+    transfer::public_transfer(publisher, @deployer);
+    transfer::public_transfer(admin_cap, @deployer);
 
     transfer::share_object(collection);
 }
@@ -137,10 +139,6 @@ public fun unit_description(self: &Collection): String {
 
 public fun framework(self: &Collection): String {
     self.framework
-}
-
-public fun is_destroyable(self: &Collection): bool {
-    self.is_destroyable
 }
 
 public fun supply(self: &Collection): u64 {
