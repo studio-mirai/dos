@@ -3,8 +3,8 @@ module dos_1::collection;
 use std::string::String;
 use sui::display;
 use sui::event::emit;
-use sui::linked_table::{Self, LinkedTable};
 use sui::package;
+use sui::table::{Self, Table};
 
 //=== Structs ===
 
@@ -44,7 +44,7 @@ public struct Collection has key {
     // Symbol of the collection.
     symbol: String,
     // Table that stores NFT IDs by number.
-    nfts: LinkedTable<u64, ID>,
+    nfts: Table<u64, ID>,
 }
 
 public struct CollectionAdminCap has key, store {
@@ -77,7 +77,7 @@ fun init(otw: COLLECTION, ctx: &mut TxContext) {
         unit_description: UNIT_DESCRIPTION.to_string(),
         symbol: SYMBOL.to_string(),
         supply: SUPPLY,
-        nfts: linked_table::new(ctx),
+        nfts: table::new(ctx),
     };
 
     let admin_cap = CollectionAdminCap {
@@ -151,6 +151,10 @@ public fun symbol(self: &Collection): String {
 
 //=== Package Functions ===
 
-public(package) fun nfts_mut(self: &mut Collection): &mut LinkedTable<u64, ID> {
+public(package) fun nfts(self: &Collection): &Table<u64, ID> {
+    &self.nfts
+}
+
+public(package) fun nfts_mut(self: &mut Collection): &mut Table<u64, ID> {
     &mut self.nfts
 }

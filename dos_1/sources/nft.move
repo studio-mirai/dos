@@ -1,6 +1,6 @@
 module dos_1::nft;
 
-use dos_1::collection::Collection;
+use dos_1::collection::{Collection, CollectionAdminCap};
 use std::string::String;
 use std::type_name;
 use sui::display;
@@ -54,6 +54,7 @@ public struct ObjectReceivedEvent has copy, drop {
 //=== Errors ===
 
 const EImageUriNotEmpty: u64 = 0;
+const EInvalidNumber: u64 = 1;
 
 //=== Init Function ===
 
@@ -82,6 +83,39 @@ fun init(otw: NFT, ctx: &mut TxContext) {
 
 //=== Public Functions ===
 
+public fun new(
+    _: &CollectionAdminCap,
+    number: u64,
+    collection: &mut Collection,
+    ctx: &mut TxContext,
+): Nft {
+    assert!(number == collection.nfts().length() + 1, EInvalidNumber);
+
+    let mut name = collection.unit_name();
+    name.append(b" #".to_string());
+    name.append(number.to_string());
+
+    let nft = Nft {
+        id: object::new(ctx),
+        name: name,
+        number: number,
+        description: collection.unit_description(),
+        image_uri: b"".to_string(),
+        attributes: vec_map::empty(),
+        collection_id: collection.id(),
+        collection_name: collection.name(),
+    };
+
+    emit(NftCreatedEvent {
+        nft_id: object::id(&nft),
+        nft_number: number,
+    });
+
+    collection.nfts_mut().add(number, nft.id());
+
+    nft
+}
+
 // Destroy an NFT. Only works if the collection.is_destroyable is true.
 public fun destroy(self: Nft, collection: &mut Collection) {
     collection.nfts_mut().remove(self.number());
@@ -99,21 +133,6 @@ public fun destroy(self: Nft, collection: &mut Collection) {
 
     id.delete();
     attributes.into_keys_values();
-}
-
-// Receive an object that's been transferred to an NFT.
-public fun receive<T: key + store>(nft: &mut Nft, obj_to_receive: Receiving<T>): T {
-    let obj = transfer::public_receive(
-        &mut nft.id,
-        obj_to_receive,
-    );
-
-    emit(ObjectReceivedEvent {
-        nft_id: object::id(nft),
-        object_id: object::id(&obj),
-    });
-
-    obj
 }
 
 // Reveal the NFT with attributes keys, attribute values, and an image URI.
@@ -135,32 +154,19 @@ public fun reveal(
     });
 }
 
-//=== Package Functions ===
+// Receive an object that's been transferred to an NFT.
+public fun receive<T: key + store>(nft: &mut Nft, obj_to_receive: Receiving<T>): T {
+    let obj = transfer::public_receive(
+        &mut nft.id,
+        obj_to_receive,
+    );
 
-public(package) fun new(number: u64, collection: &mut Collection, ctx: &mut TxContext): Nft {
-    let mut name = collection.unit_name();
-    name.append(b" #".to_string());
-    name.append(number.to_string());
-
-    let nft = Nft {
-        id: object::new(ctx),
-        name: name,
-        number: number,
-        description: collection.unit_description(),
-        image_uri: b"".to_string(),
-        attributes: vec_map::empty(),
-        collection_id: collection.id(),
-        collection_name: collection.name(),
-    };
-
-    emit(NftCreatedEvent {
-        nft_id: object::id(&nft),
-        nft_number: number,
+    emit(ObjectReceivedEvent {
+        nft_id: object::id(nft),
+        object_id: object::id(&obj),
     });
 
-    collection.nfts_mut().push_back(number, nft.id());
-
-    nft
+    obj
 }
 
 //=== View Functions ===
