@@ -55,7 +55,6 @@ public struct CollectionAdminCap has key, store {
 
 public struct CollectionInitializedEvent has copy, drop {
     collection_id: ID,
-    collection_name: String,
     collection_admin_cap_id: ID,
     collection_display_id: ID,
     collection_publisher_id: ID,
@@ -100,7 +99,6 @@ fun init(otw: COLLECTION, ctx: &mut TxContext) {
 
     emit(CollectionInitializedEvent {
         collection_id: object::id(&collection),
-        collection_name: collection.name(),
         collection_admin_cap_id: object::id(&admin_cap),
         collection_display_id: object::id(&display),
         collection_publisher_id: object::id(&publisher),

@@ -89,29 +89,36 @@ public fun new(
     collection: &mut Collection,
     ctx: &mut TxContext,
 ): Nft {
-    assert!(number == collection.nfts().length() + 1, EInvalidNumber);
+    let nft = internal_new(
+        number,
+        collection,
+        ctx,
+    );
 
-    let mut name = collection.unit_name();
-    name.append(b" #".to_string());
-    name.append(number.to_string());
+    nft
+}
 
-    let nft = Nft {
-        id: object::new(ctx),
-        name: name,
-        number: number,
-        description: collection.unit_description(),
-        image_uri: b"".to_string(),
-        attributes: vec_map::empty(),
-        collection_id: collection.id(),
-        collection_name: collection.name(),
-    };
+public fun new_and_reveal(
+    _: &CollectionAdminCap,
+    number: u64,
+    attribute_keys: vector<String>,
+    attribute_values: vector<String>,
+    image_uri: String,
+    collection: &mut Collection,
+    ctx: &mut TxContext,
+): Nft {
+    let mut nft = internal_new(
+        number,
+        collection,
+        ctx,
+    );
 
-    emit(NftCreatedEvent {
-        nft_id: object::id(&nft),
-        nft_number: number,
-    });
-
-    collection.nfts_mut().add(number, nft.id());
+    reveal(
+        &mut nft,
+        attribute_keys,
+        attribute_values,
+        image_uri,
+    );
 
     nft
 }
@@ -197,4 +204,32 @@ public fun image_uri(self: &Nft): String {
 
 public fun attributes(self: &Nft): &VecMap<String, String> {
     &self.attributes
+}
+
+fun internal_new(number: u64, collection: &mut Collection, ctx: &mut TxContext): Nft {
+    assert!(number == collection.nfts().length() + 1, EInvalidNumber);
+
+    let mut name = collection.unit_name();
+    name.append(b" #".to_string());
+    name.append(number.to_string());
+
+    let nft = Nft {
+        id: object::new(ctx),
+        name: name,
+        number: number,
+        description: collection.unit_description(),
+        image_uri: b"".to_string(),
+        attributes: vec_map::empty(),
+        collection_id: collection.id(),
+        collection_name: collection.name(),
+    };
+
+    emit(NftCreatedEvent {
+        nft_id: object::id(&nft),
+        nft_number: number,
+    });
+
+    collection.nfts_mut().add(number, nft.id());
+
+    nft
 }
