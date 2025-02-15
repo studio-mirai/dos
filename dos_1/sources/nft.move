@@ -207,8 +207,6 @@ public fun attributes(self: &Nft): &VecMap<String, String> {
 }
 
 fun internal_new(number: u64, collection: &mut Collection, ctx: &mut TxContext): Nft {
-    assert!(number == collection.nfts().length() + 1, EInvalidNumber);
-
     let mut name = collection.unit_name();
     name.append(b" #".to_string());
     name.append(number.to_string());
