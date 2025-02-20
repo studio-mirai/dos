@@ -103,12 +103,12 @@ fun init(otw: COLLECTION, ctx: &mut TxContext) {
         collection_display_id: object::id(&display),
         collection_publisher_id: object::id(&publisher),
         creator: @creator,
-        deployer: @deployer,
+        deployer: ctx.sender(),
     });
 
-    transfer::public_transfer(display, @deployer);
-    transfer::public_transfer(publisher, @deployer);
-    transfer::public_transfer(admin_cap, @deployer);
+    transfer::public_transfer(display, ctx.sender());
+    transfer::public_transfer(publisher, ctx.sender());
+    transfer::public_transfer(admin_cap, ctx.sender());
 
     transfer::share_object(collection);
 }

@@ -54,7 +54,6 @@ public struct ObjectReceivedEvent has copy, drop {
 //=== Errors ===
 
 const EImageUriNotEmpty: u64 = 0;
-const EInvalidNumber: u64 = 1;
 
 //=== Init Function ===
 
@@ -77,8 +76,8 @@ fun init(otw: NFT, ctx: &mut TxContext) {
         object_publisher_id: object::id(&publisher),
     });
 
-    transfer::public_transfer(display, @deployer);
-    transfer::public_transfer(publisher, @deployer);
+    transfer::public_transfer(display, ctx.sender());
+    transfer::public_transfer(publisher, ctx.sender());
 }
 
 //=== Public Functions ===
